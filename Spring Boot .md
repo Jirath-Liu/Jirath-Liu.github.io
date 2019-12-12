@@ -247,23 +247,23 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
     }
 ```
 
-![image-20191108004759664](image-20191108004759664.png)
+![E:\notes\SpringBoot\image-20191108004759664](E:\notes\SpringBoot\image-20191108004759664.png)
 
 其中，这个方法registerBeanDefinitions将bean注册到容器中，我们想知道注册的到底是什么，对这行代码进行调试，
 
-![image-20191108004922107](image-20191108004922107.png)
+![E:\notes\SpringBoot\image-20191108004922107](E:\notes\SpringBoot\image-20191108004922107.png)
 
 点击运行Spring Boot，
 
-![image-20191108004942780](image-20191108004942780.png)
+![E:\notes\SpringBoot\image-20191108004942780](E:\notes\SpringBoot\image-20191108004942780.png)
 
 通过调试信息我们知道，这个注解源头在CaitApplication(Spring Boot 启动类)
 
 我们选择getPackName()方法，鼠标右键选择计算表达
 
-![image-20191108005216309](image-20191108005216309.png)
+![E:\notes\SpringBoot\image-20191108005216309](E:\notes\SpringBoot\image-20191108005216309.png)
 
-![image-20191108005257318](image-20191108005257318.png)**
+![E:\notes\SpringBoot\image-20191108005257318](E:\notes\SpringBoot\image-20191108005257318.png)**
 
 结果证明：导入的包为com.cait.cait，也就是启动类所在的包中所有的bean。这表明，
 
@@ -285,7 +285,7 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
 
 选择debug模式，查看
 
-![image-20191108011145418](image-20191108011145418.png)
+![E:\notes\SpringBoot\image-20191108011145418](E:\notes\SpringBoot\image-20191108011145418.png)
 
 通过名字了解到是很多自动配置类(XXXAutoConfiguration)：就是给容器中导入这个场景需要的所有组件并配置好组件，使用不同的功能对应不同的配置文件
 
@@ -327,7 +327,7 @@ IDE都支持Spring Boot 的快速创建项目
 
 - 主程序已经生成，我们只需要我们自己的逻辑
 - resouces文件夹中目录结构
-    - static：保存所有的静态资源：js,css,images;
+    - static：保存所有的静态资源：js,css,E:\notes\SpringBoot\images;
     - templates:保存所有的模板页面：（Spring Boot 默认jar包嵌入式的Tomcat，默认不支持Jsp页面）；可以使用模板引擎（freemarker、thymeleaf);
     - application.properties:Spring Boot 应用默认配置文件
     -  https://blog.csdn.net/weixin_44494373/article/details/102779187 
@@ -555,7 +555,7 @@ String LastName;
 @ImportResource(locations= {"classpath:bean.xml"})
 ```
 
-![image-20191109122150768](image-20191109122150768.png)
+![E:\notes\SpringBoot\image-20191109122150768](E:\notes\SpringBoot\image-20191109122150768.png)
 
 导入Spring配置文件：beans.xml并使其生效
 
@@ -605,7 +605,7 @@ app.description=${app.name} is a Spring Boot application
 
 -   可以在配置文件中引用前面配置过的属性（优先级前面配置过的这里都能用）
 -   ${app.name:defultValue}来指定找不到属性时的默认值
--   ![image-20191109131315756](image-20191109131315756.png)
+-   ![E:\notes\SpringBoot\image-20191109131315756](E:\notes\SpringBoot\image-20191109131315756.png)
 -   若引用的值不存在，SpringBoot会默认将{}中间的值作为value
 -   用${person.name:(defult)}可以设置默认为defult
 
@@ -652,13 +652,13 @@ spring:
 
    -  --spring.profile.active=dev
    -  idea测试方法
-   -  ![image-20191109133513058](image-20191109133513058.png)
+   -  ![E:\notes\SpringBoot\image-20191109133513058](E:\notes\SpringBoot\image-20191109133513058.png)
    -  打包：
       -  打开maven选项，Lifecycle->package
-      -  ![image-20191109133729452](image-20191109133729452.png)
+      -  ![E:\notes\SpringBoot\image-20191109133729452](E:\notes\SpringBoot\image-20191109133729452.png)
    -  虚拟机方法：
        -  -Dspring-profiles.active=dev
-       -  ![image-20191109133927171](image-20191109133927171.png)
+       -  ![E:\notes\SpringBoot\image-20191109133927171](E:\notes\SpringBoot\image-20191109133927171.png)
 
 ## 6.配置文件的加载位置
 
@@ -673,7 +673,7 @@ spring boot 启动会扫描以下位置的application.properties / yml 文件作
 -   <u>**高级优先配置内容会覆盖低级优先配置相同的内容，同时满足配置互补**</u>
 -   我们也可以通过配置**spring.config.location**来改变<u>**默认配置**</u>
     -   项目打包好了以后，我们可以使用命令行参数的形式，启动项目的时候来指定配置文件的位置；**指定配置文件和默认加载的这些配置文件共同起作用，形成互补配置**
-    -   <img src="image-20191109135006909.png" alt="image-20191109135006909" style="zoom:150%;" />
+    -   <img src="E:\notes\SpringBoot\image-20191109135006909.png" alt="E:\notes\SpringBoot\image-20191109135006909" style="zoom:150%;" />
     -   即可以在外部改变配置
 
 ## 7.Spring Boot 外部配置加载顺序
@@ -975,8 +975,8 @@ xxxxproperties:封装配置文件中相关属性；
 
 for example:
 
-1.  全局搜索相关自动配置类![image-20191119184009565](image-20191119184009565.png)
-2.  点击查看XXXXProperties，类中属性即为可以配置的属性![image-20191119184212665](image-20191119184212665.png)
+1.  全局搜索相关自动配置类![E:\notes\SpringBoot\image-20191119184009565](E:\notes\SpringBoot\image-20191119184009565.png)
+2.  点击查看XXXXProperties，类中属性即为可以配置的属性![E:\notes\SpringBoot\image-20191119184212665](E:\notes\SpringBoot\image-20191119184212665.png)
 
 ## 3.自动配置原理（细节）
 
@@ -1083,15 +1083,15 @@ public class HelloWorld {
 
 slf4j使用的情况
 
-![image-20191119224122166](image-20191119224122166.png)
+![E:\notes\SpringBoot\image-20191119224122166](E:\notes\SpringBoot\image-20191119224122166.png)
 
 SELF4j关联了logback日志框架后的正确使用情况
 
-![image-20191119224217201](image-20191119224217201.png)
+![E:\notes\SpringBoot\image-20191119224217201](E:\notes\SpringBoot\image-20191119224217201.png)
 
 调用SELF4j的接口，SELF4j调用底层日志的jar包
 
-使用log4j时，系统会使用适配层![image-20191119224556969](image-20191119224556969.png)
+使用log4j时，系统会使用适配层![E:\notes\SpringBoot\image-20191119224556969](E:\notes\SpringBoot\image-20191119224556969.png)
 
 通过适配层将两者关联
 
@@ -1103,7 +1103,7 @@ for example:a情况（slf4j+logback):Spring (commons-logging)、Hibernate( jBOSS
 
 [介绍](http://slf4j.org/legacy.html)
 
-![image-20191119230034676](image-20191119230034676.png)
+![E:\notes\SpringBoot\image-20191119230034676](E:\notes\SpringBoot\image-20191119230034676.png)
 
 1.  <u>**将系统中其他日志框架先排出去**</u>
 2.  <u>**用中间包替换所有的日志框架**</u>
@@ -1115,7 +1115,7 @@ for example:a情况（slf4j+logback):Spring (commons-logging)、Hibernate( jBOSS
 
 使用idea创建，选择web，默认携带self4j+logback
 
-在pom文件中，选择导入的依赖，右键，选择Diagrams->Show Dependencies,idea就可以用树状图的方式展现依赖之间的关系，按住alt即可放大镜查看![image-20191119230807550](image-20191119230807550.png)
+在pom文件中，选择导入的依赖，右键，选择Diagrams->Show Dependencies,idea就可以用树状图的方式展现依赖之间的关系，按住alt即可放大镜查看![E:\notes\SpringBoot\image-20191119230807550](E:\notes\SpringBoot\image-20191119230807550.png)
 
 
 
@@ -1141,7 +1141,7 @@ SpringBoot 使用他来做日志功能
 
 
 
-![image-20191119231757405](image-20191119231757405.png)
+![E:\notes\SpringBoot\image-20191119231757405](E:\notes\SpringBoot\image-20191119231757405.png)
 
 总结：
 
@@ -1197,7 +1197,7 @@ logging.pattern.console================%n%d{yyyy-MM-dd} [%thread] %-5level %logg
 logging.pattern.file=
 ```
 
-![image-20191120005537458](image-20191120005537458.png)
+![E:\notes\SpringBoot\image-20191120005537458](E:\notes\SpringBoot\image-20191120005537458.png)
 
 SpringBoot 关于日志的其他默认设置在哪里？
 
@@ -1207,7 +1207,7 @@ spring-boot-2.2.0.RELEASE.jar!/org/springframework/boot/logging/logback/中
 
 打开即为SpringBoot针对LogBack的配置封装。
 
-for example:![image-20191121164445234](image-20191121164445234.png)
+for example:![E:\notes\SpringBoot\image-20191121164445234](E:\notes\SpringBoot\image-20191121164445234.png)
 
 其中，SpringBoot将默认级别(root)设置为了info
 
@@ -1217,9 +1217,9 @@ for example:![image-20191121164445234](image-20191121164445234.png)
 
 在base.xml中SpringBoot针对控制台与文件输出有分别的定义，如图
 
-![image-20191121170632959](image-20191121170632959.png)
+![E:\notes\SpringBoot\image-20191121170632959](E:\notes\SpringBoot\image-20191121170632959.png)
 
-在文件默认配置中，SpringBoot同时设置了文件在最大数值，当超出数值，日志就会自动分文件记录，如：log1,log2![image-20191121171013414](image-20191121171013414.png)
+在文件默认配置中，SpringBoot同时设置了文件在最大数值，当超出数值，日志就会自动分文件记录，如：log1,log2![E:\notes\SpringBoot\image-20191121171013414](E:\notes\SpringBoot\image-20191121171013414.png)
 
 ### 2）指定配置
 
@@ -1227,7 +1227,7 @@ for example:![image-20191121164445234](image-20191121164445234.png)
 
 要想使用自己的配置文件，Spring.io中在特性下有一章节专门讲述了SpringBoot配置默认日志的方法：在Spring目录中放logback.xml即可
 
-给类路径下放上每个框架自己的配置文件即可：SpringBoot就不再使用默认配置![image-20191121171521031](image-20191121171521031.png)
+给类路径下放上每个框架自己的配置文件即可：SpringBoot就不再使用默认配置![E:\notes\SpringBoot\image-20191121171521031](E:\notes\SpringBoot\image-20191121171521031.png)
 
  Spring Boot includes a number of extensions to Logback that can help with advanced configuration. You can use these extensions in your `logback-spring.xml` configuration file. 
 
@@ -1330,13 +1330,13 @@ public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 #### 第二种"/**"访问当前项目的任何资源
 
-![image-20191122005652800](image-20191122005652800.png)
+![E:\notes\SpringBoot\image-20191122005652800](E:\notes\SpringBoot\image-20191122005652800.png)
 
-![image-20191122005623330](image-20191122005623330.png)
+![E:\notes\SpringBoot\image-20191122005623330](E:\notes\SpringBoot\image-20191122005623330.png)
 
 
 
-![image-20191122005540932](image-20191122005540932.png)
+![E:\notes\SpringBoot\image-20191122005540932](E:\notes\SpringBoot\image-20191122005540932.png)
 
 
 
@@ -1470,11 +1470,11 @@ SpringBoot推荐的Thymeleaf；
     
     -   [thymeleaf官网](https://www.thymeleaf.org/)
     
-    -   ![image-20191122231053533](image-20191122231053533.png)
+    -   ![E:\notes\SpringBoot\image-20191122231053533](E:\notes\SpringBoot\image-20191122231053533.png)
     
     -   现代化java服务端的模板引擎
     
-    -   ![image-20191122231204398](image-20191122231204398.png)
+    -   ![E:\notes\SpringBoot\image-20191122231204398](E:\notes\SpringBoot\image-20191122231204398.png)
     
     -   使用
     
@@ -1519,7 +1519,7 @@ SpringBoot推荐的Thymeleaf；
 
 th:任意html属性 替换原生属性的值
 
-![image-20191122235427773](image-20191122235427773.png)
+![E:\notes\SpringBoot\image-20191122235427773](E:\notes\SpringBoot\image-20191122235427773.png)
 
 ##### 2）表达式
 
@@ -1901,9 +1901,9 @@ SpringBoot对MVC的自动配置不再需要，所有内容都是自己来配；
     1.  利用thymeleaf模板引擎，标准语法中的messages
     2.  #{}获取国际化信息，#{配置的文件头(默认为message).属性}
 
-![image-20191128003156337](image-20191128003156337.png)
+![E:\notes\SpringBoot\image-20191128003156337](E:\notes\SpringBoot\image-20191128003156337.png)
 
-![image-20191128003834703](image-20191128003834703.png)
+![E:\notes\SpringBoot\image-20191128003834703](E:\notes\SpringBoot\image-20191128003834703.png)
 
 ##### 原理
 
@@ -1935,7 +1935,7 @@ SpringBoot对MVC的自动配置不再需要，所有内容都是自己来配；
 
 -   编写类实现LocaleResolver接口，将这个类注册到容器中
 
-![image-20191128151950358](image-20191128151950358.png)
+![E:\notes\SpringBoot\image-20191128151950358](E:\notes\SpringBoot\image-20191128151950358.png)
 
 <u>可以直接在Configuration中编写一个内部类完成</u>
 
@@ -1982,7 +1982,7 @@ idea在运行期间不会修改代码
 -   新建类实现HandlerInterceptor接口
 -   重写preHandle方法，利用request对象读取session信息
 -   在webMvcConfigurater配置类中添加拦截器addInterceptors
--   ![image-20191128165030946](image-20191128165030946.png)
+-   ![E:\notes\SpringBoot\image-20191128165030946](E:\notes\SpringBoot\image-20191128165030946.png)
 
 ### 5）、CRUD-员工列表
 
@@ -2020,17 +2020,17 @@ idea在运行期间不会修改代码
 
 浏览器访问
 
-![image-20191201105455160](image-20191201105455160.png)
+![E:\notes\SpringBoot\image-20191201105455160](E:\notes\SpringBoot\image-20191201105455160.png)
 
 postman访问接口，信息使用json的方式返回
 
-![image-20191201105616424](image-20191201105616424.png)
+![E:\notes\SpringBoot\image-20191201105616424](E:\notes\SpringBoot\image-20191201105616424.png)
 
 浏览器发送的请求头中优先接受text/html,表明优先接受html页面
 
-![image-20191201112854702](image-20191201112854702.png)
+![E:\notes\SpringBoot\image-20191201112854702](E:\notes\SpringBoot\image-20191201112854702.png)
 
-postman发送的请求头中无优先级![image-20191201122002032](image-20191201122002032.png)
+postman发送的请求头中无优先级![E:\notes\SpringBoot\image-20191201122002032](E:\notes\SpringBoot\image-20191201122002032.png)
 
 相关自动配置在AutoConfigure下web中的error中配置
 
@@ -2040,20 +2040,20 @@ postman发送的请求头中无优先级![image-20191201122002032](image-2019120
 
 -   DefaultErrorAttributes
     -   作用：帮我们在页面共享信息
-    -   ![image-20191201125630018](image-20191201125630018.png)
+    -   ![E:\notes\SpringBoot\image-20191201125630018](E:\notes\SpringBoot\image-20191201125630018.png)
     -   默认去找页面: error/404  error/+错误状态码
     -   方法：拼接视图名，若存在模板引擎，就用模板引擎解析返回
     -   若模板引擎不可用，则用resolve，在静态资源文件夹下找errorViewName对应的页面 error/404.html
 -   BasicErrorController
     1.  处理默认的/error请求
     2.  打开该类，处理两种请求
-    3.  <img src="image-20191201122142505.png" alt="image-20191201122142505" style="zoom:200%;" />
+    3.  <img src="E:\notes\SpringBoot\image-20191201122142505.png" alt="E:\notes\SpringBoot\image-20191201122142505" style="zoom:200%;" />
     4.  其中html返回ModelAndView，可以处理html类型的数据，浏览器发送的请求来到此处理
     5.  另一个返回的是ResponseEntity，可以处理json类型的数据，其他客户端来到这里进行处理
 -   ErrorMvcAutoConfiguration.ErrorPageCustomizer
     1.  ErrorPageCustomizer将调用ErrorProperties获取配置的error文件目录
     2.  系统出现错误后来到error请求进行处理；（web.xml注册的错误页面规则）
-    3.  ![image-20191201110842808](image-20191201110842808.png)
+    3.  ![E:\notes\SpringBoot\image-20191201110842808](E:\notes\SpringBoot\image-20191201110842808.png)
 -   ErrorMvcAutoConfiguration.PreserveErrorControllerTargetClassPostProcessor
 
 步骤：
@@ -2132,7 +2132,7 @@ postman发送的请求头中无优先级![image-20191201122002032](image-2019120
 
     ps:Spring的转发与重定向：在返回的视图名前添加forward: 转发，redirect: 重定向
 
-    上述代码存在页面返回为空白的问题，思考SpringBoor 的错误处理流程得知，SpringBoot在处理页面 请求的错误时，会从error请求中取出状态码,其对应的参数名在方法中可查，为javax.servlet.error.status_code![image-20191211010102014](image-20191211010102014.png)
+    上述代码存在页面返回为空白的问题，思考SpringBoor 的错误处理流程得知，SpringBoot在处理页面 请求的错误时，会从error请求中取出状态码,其对应的参数名在方法中可查，为javax.servlet.error.status_code![E:\notes\SpringBoot\image-20191211010102014](E:\notes\SpringBoot\image-20191211010102014.png)
 
     ````java
     protected HttpStatus getStatus(HttpServletRequest request) {
@@ -2237,7 +2237,7 @@ server.tomcat.xxx
 
 ​	编写一嵌入式的servlet容器定制器；来修改Servlet容器的配置，两种方式任选一个，是同一个底层原理。
 
-在MvcConfig中添加一个EmbeddedServletContainerCustomer![image-20191211101416717](image-20191211101416717.png)
+在MvcConfig中添加一个EmbeddedServletContainerCustomer![E:\notes\SpringBoot\image-20191211101416717](E:\notes\SpringBoot\image-20191211101416717.png)
 
 ## 注册Servlet容器三大组件
 
@@ -2253,19 +2253,19 @@ SpringBoot如何注册？
 
 <u>添加Bean,返回一个指定的注册Bean，参数为写好的类与映射，完成Servlet注册</u>
 
-![image-20191211105348847](image-20191211105348847.png)
+![E:\notes\SpringBoot\image-20191211105348847](E:\notes\SpringBoot\image-20191211105348847.png)
 
 <u>实现接口Filter来编写Filter类</u>
 
-![image-20191211105559395](image-20191211105559395.png)
+![E:\notes\SpringBoot\image-20191211105559395](E:\notes\SpringBoot\image-20191211105559395.png)
 
 <u>添加filter到容器中</u>
 
-![image-20191211105823726](image-20191211105823726.png)
+![E:\notes\SpringBoot\image-20191211105823726](E:\notes\SpringBoot\image-20191211105823726.png)
 
 <u>注册ServletContextListener</u>
 
-![image-20191211105928724](image-20191211105928724.png)![image-20191211110043096](image-20191211110043096.png)
+![E:\notes\SpringBoot\image-20191211105928724](E:\notes\SpringBoot\image-20191211105928724.png)![E:\notes\SpringBoot\image-20191211110043096](E:\notes\SpringBoot\image-20191211110043096.png)
 
 SpringBoot 帮我们启动SpingMvc的时候，自动注册Spring前端控制器；DispatcherServlet通过server.servlet-path来修改SpringMVC前端控制器，默认配置为"/"
 
