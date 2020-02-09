@@ -468,7 +468,7 @@ String LastName;
 
 
 
-### 2) 将数据绑定到类中
+### 2) 将数据绑定到类中 含配置文件与类绑定的方法
 
 **<u>注： prefix必须全部为小写，配置的类名不能使用大写！！！！！，如 subMit是错误的！！</u>**
 
@@ -618,6 +618,8 @@ app.description=${app.name} is a Spring Boot application
 ### 1）多Profile文件
 
 我们在主配置文件编写的时候，文件名可以是 application-(profile).properties/yml
+
+<u>**！！！注意，文件的profile必须在三个字符以内，否自无法作为配置文件！！**</u>
 
 默认使用application.properties的配置：
 
@@ -2285,4 +2287,414 @@ tomcat、Jetty、Undertow，默认使用Tomcat
 ## 嵌入式Servlet容器自动配置原理
 
 自动配置jar,web->EmbeddedServletContainerAutoConfiguration(嵌入式Servlet容器自动配置)
+
+### Spring Boot 如何自动配置servlet容器
+
+SpringBoot 2版本相对于1代在这里去掉了对于容器中是否有用户自定义的Servlet工厂的判断，
+
+````java
+  
+	/**
+	*判断当前是否引入Tomcat依赖,若引入就加载Tomcat配置
+	*/
+	@Configuration(
+        proxyBeanMethods = false
+    )
+    @ConditionalOnClass({Tomcat.class, UpgradeProtocol.class})
+    public static class TomcatWebServerFactoryCustomizerConfiguration {
+        public TomcatWebServerFactoryCustomizerConfiguration() {
+        }
+
+        @Bean
+        public TomcatWebServerFactoryCustomizer tomcatWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties) {
+            return new TomcatWebServerFactoryCustomizer(environment, serverProperties);
+        }
+    }
+````
+
+Spring Boot是通过检查项目中是否存在相关容器的依赖，然后加载对应的配置，启动对应的Servlet容器。创建对应的工厂对象，加载配置的编码，连接数等等等等参数设置。配置好以后返回并启动
+
+### 我们对嵌入式容器配置的修改如何生效
+
+1.  ServerProperties、
+2.  EmbeddedServletContainerCustomer自定的Servlet容器定制器
+3.  ServerProperties实现了EmbeddedServletContainerCustomer接口，本质也是Servlet容器定制器。
+
+所以必为**EmbeddedServletContainerCustomer**：定制器帮我们修改了Servlet容器的配置
+
+步骤：
+
+1.  SpringBoot根据导入的依赖情况，给容器中添加相应的EmbeddedServletContainerFactory
+2.  容器中某个组件要创建对象就会惊动后置处理器：EmbeddedServletContainerCustomizerBeanPostProcessor
+3.  只要是嵌入式的Servlet容器工厂，后置处理器就工作
+4.  后置处理器，从容器中获取所有的EmbeddedServletContainerCustomizer调用定制器的定制方法
+
+### 嵌入式Servlet容器启动原理
+
+什么时候创建嵌入式的Servlet容器工厂？什么时候获取嵌入式的Servlet容器启动Tomcat
+
+1.  获取嵌入式Servlet容器工厂，启动运行run方法
+2.  refreshContext(context);SpringBoot刷新IOC容器（创建IOC容器对象，并舒适化容器，创建容器中的每一个组件）；有判断web应用，不同的容器
+3.  onRefresh();web的ioc容器重写了onRefresh方法
+4.  webioc容器会创建嵌入式的Servlet容器；createEmbeddedServletContainer();
+5.  获取嵌入式Servlet容器工厂：
+    1.  从ioc容器中获取EmbeddedServletContainerFactory组件；
+    2.  TomcatEmbeddedServletContainerFactory创建对象，后置处理器识别到这个对象，就获取所有的定制器来定制Servlet容器的相关配置；
+6.  使用容器工厂获取嵌入式的Servlet容器工厂获取一个工厂
+7.  嵌入式容器创建对象并启动Servlet容器
+8.  先启动Servlet容器，再将ioc容器中剩下的没有创建出的对象获取出来
+
+## 使用外置的Servlet容器
+
+嵌入式Servlet：打为可执行jar
+
+​	优点：简单、便携
+
+​	缺点：默认不支持JSP、优化定制比较复杂（使用定制器【ServerProerties、自定义EmbeddedServletContainerCustomizer】,自己编写嵌入式Servlet容器的创建工厂）
+
+### 外置的Servlet容器：外面安装Tomcat——应用war包的方式打包
+
+1.  新建SpringBoot项目，packaging选择war
+2.  右上角项目结构在modules中修改，选择web右侧有web Resource Directories web资源目录，选择ok就能创建，上侧有一个Deployment Descriptors部署描述（生成web.xml文件），其他与SSM相似
+
+# 六、数据访问
+
+## 1、jdbc配置
+
+idea新建项目勾选jdbc,mysql,web
+
+idea生成的项目自动携带了jdbc的stater和jdbc依赖
+
+### 配置properties
+
+spring.datasource下进行
+
+![image-20200129211031190](E:\notes\SpringBoot\image-20200129211031190.png)
+
+使用测试类查看数据源信息
+
+![image-20200129213600647](E:\notes\SpringBoot\image-20200129213600647.png)
+
+### 效果：
+
+-   默认使用org.apache.tomcat.jdbc.pool.DataSource作为数据源（1版本），2版本默认使用com.zaxxer.hikari.HikarDataSource作为数据源
+-   数据源的相关配置都在DataSourceProperties里面
+
+### 自动配置原理：
+
+位置在autoconfigure中的jdbc包中
+
+1.  参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat(2版本使用hikari)连接池；可以使用spring.datasource.type指定自定义的数据类型
+
+2.  SpringBoot默认支持 Tomcat，hikari，Basic三种DataSource
+
+3.  自定义数据源类型，builder设计模式![image-20200129215844149](E:\notes\SpringBoot\image-20200129215844149.png)
+
+4.  DataSourceInitializer: ApplicationListener
+
+    -   作用：
+
+        1.  runSchemaScripts();运行建表语句
+        2.  runDataScript();运行插入数据的sql语句
+
+    -   默认只需要将文件命名：
+
+        -   ````properties
+            schema-*.sql data-*.sql
+            ````
+
+    -   失败的在配置文件加initialization-mode: always(2版本的改动)
+
+    -   若想配置自己定义的名字，在配置文件中datasource下配置schema,查看关联的properties可以得知改项接收的为list，使用yml的list写法即可 如：- classpath:department.sql
+
+
+## 2.使用druid
+
+视频已经过时，就自己找来的文档
+
+### Druid的简介
+
+Druid首先是一个数据库连接池。Druid是目前最好的数据库连接池，在功能、性能、扩展性方面，都超过其他数据库连接池，包括DBCP、C3P0、BoneCP、Proxool、JBoss DataSource。Druid已经在阿里巴巴部署了超过600个应用，经过一年多生产环境大规模部署的严苛考验。Druid是阿里巴巴开发的号称为监控而生的数据库连接池！
+
+#### 同时Druid不仅仅是一个数据库连接池，它包括四个部分：
+
+    Druid是一个JDBC组件，它包括三个部分：
+    
+    基于Filter－Chain模式的插件体系。
+    
+    DruidDataSource 高效可管理的数据库连接池。
+    
+    SQLParser
+
+#### Druid的功能
+
+1、替换DBCP和C3P0。Druid提供了一个高效、功能强大、可扩展性好的数据库连接池。
+
+2、可以监控数据库访问性能，Druid内置提供了一个功能强大的StatFilter插件，能够详细统计SQL的执行性能，这对于线上分析数据库访问性能有帮助。
+
+3、数据库密码加密。直接把数据库密码写在配置文件中，这是不好的行为，容易导致安全问题。DruidDruiver和DruidDataSource都支持PasswordCallback。
+
+4、SQL执行日志，Druid提供了不同的LogFilter，能够支持Common-Logging、Log4j和JdkLog，你可以按需要选择相应的LogFilter，监控你应用的数据库访问情况。
+
+5、扩展JDBC，如果你要对JDBC层有编程的需求，可以通过Druid提供的Filter机制，很方便编写JDBC层的扩展插件。
+
+#### 所以Druid可以：
+
+1、充当数据库连接池。
+2、可以监控数据库访问性能
+3、获得SQL执行日志
+
+### 配置Druid
+
+新的Druid推出了stater进行配置，操作很方便
+
+[官方给的介绍](https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter)
+
+#### 引入stater
+
+```xml
+	<dependency>
+	   <groupId>com.alibaba</groupId>
+	   <artifactId>druid-spring-boot-starter</artifactId>
+	   <version>1.1.10</version>
+	</dependency>
+```
+#### 在配置文件进行配置
+
+````yaml
+spring:
+  application:
+    name: springboot-test-exam1
+  datasource:
+    # 使用阿里的Druid连接池
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    # 填写你数据库的url、登录名、密码和数据库名
+    url: jdbc:mysql://localhost:3306/databaseName?useSSL=false&characterEncoding=utf8
+    username: root
+    password: root
+    druid:
+      # 连接池的配置信息
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,slf4j
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      # 配置DruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      # 配置DruidStatViewServlet
+      stat-view-servlet:
+        url-pattern: "/druid/*"
+        # IP白名单(没有配置或者为空，则允许所有访问)
+        allow: 127.0.0.1,192.168.163.1
+        # IP黑名单 (存在共同时，deny优先于allow)
+        deny: 192.168.1.73
+        #  禁用HTML页面上的“Reset All”功能
+        reset-enable: false
+        # 登录名
+        login-username: admin
+        # 登录密码
+        login-password: 123456
+````
+
+## 3、整合Jpa
+
+Jpa(Spring Data Jpa)一款hibernate发展来的ORM框架，全自动持久层操作，不用书写sql。
+
+[SpringBoot整合Spring Data Jpa](https://blog.csdn.net/gwd1154978352/article/details/78393240)
+
+## 4、整合MyBatis
+
+### MyBatis原理
+
+#### 一、Mybatis工作原理图
+
+mybatis 原理图如下所示：![img](E:\notes\SpringBoot\20180624002302854.png)
+
+
+
+#### 二、工作原理解析
+
+mybatis应用程序通过SqlSessionFactoryBuilder从mybatis-config.xml配置文件（也可以用Java文件配置的方式，需要添加@Configuration）来构建SqlSessionFactory（SqlSessionFactory是线程安全的）；
+
+然后，SqlSessionFactory的实例直接开启一个SqlSession，再通过SqlSession实例获得Mapper对象并运行Mapper映射的SQL语句，完成对数据库的CRUD和事务提交，之后关闭SqlSession。
+
+说明：SqlSession是单线程对象，因为它是非线程安全的，是持久化操作的独享对象，类似jdbc中的Connection，底层就封装了jdbc连接。
+
+详细流程如下：
+
+1、加载mybatis全局配置文件（数据源、mapper映射文件等），解析配置文件，MyBatis基于XML配置文件生成Configuration，和一个个MappedStatement（包括了参数映射配置、动态SQL语句、结果映射配置），其对应着<select | update | delete | insert>标签项。
+
+2、SqlSessionFactoryBuilder通过Configuration对象生成SqlSessionFactory，用来开启SqlSession。
+
+3、SqlSession对象完成和数据库的交互：
+a、用户程序调用mybatis接口层api（即Mapper接口中的方法）
+b、SqlSession通过调用api的Statement ID找到对应的MappedStatement对象
+c、通过Executor（负责动态SQL的生成和查询缓存的维护）将MappedStatement对象进行解析，sql参数转化、动态sql拼接，生成jdbc Statement对象
+d、JDBC执行sql。
+
+e、借助MappedStatement中的结果映射关系，将返回结果转化成HashMap、JavaBean等存储结构并返回。
+
+#### mybatis层次图：![img](E:\notes\SpringBoot\20180625095624918.png)
+
+### 配置
+
+MyBatis也有SpringBoot的stater可以使用，很方便
+
+#### 引入依赖
+
+````xml
+<dependency>
+	<groupId>org.mybatis.spring.boot</groupId>
+	<artifactId>mybatis-spring-boot-starter</artifactId>
+	<version>1.2.0</version>	
+</dependency>
+````
+
+#### 在启动类上注解——增加MapperScan注解路径执行mapper接口路径
+
+**<u>注意这里是dao层接口的位置，不是xml文件的位置</u>**
+
+````java
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+ 
+@SpringBootApplication
+@MapperScan("com.sun.houses.mapper")
+public class HousesApplication {
+ 
+	public static void main(String[] args) {
+		SpringApplication.run(HousesApplication.class, args);
+	}
+}
+````
+
+或者可以在接口上注解@Mapper，个人觉得很繁琐
+
+#### 配置文件进行配置
+
+````yaml
+mybatis:
+  #实体类位置，可以直接进行映射
+  type-aliases-package: com.jirath.jirathblog2.pojo,com.jirath.jirathblog2.query
+  #mybatis-mapper xml文件位置
+  mapper-locations: classpath:mybatis-mapping/*Mapper.xml
+  #MyBatis配置
+  configuration:
+  	#开启驼峰，配置有很多，不在多写，使用默认
+    map-underscore-to-camel-case: true
+````
+
+
+
+# 七、创建SpringBootApplication
+
+为启动main方法打上断点进行调试
+
+启动流程：
+
+1.  创建SpringApplication对象
+    1.  调用initialize方法，2.x已经弃用，在构造方法中完成![image-20200206224419971](E:\notes\SpringBoot\image-20200206224419971.png)
+    2.  ![image-20200206224453576](E:\notes\SpringBoot\image-20200206224453576.png)
+    3.  保存主配置类
+    4.  判断是否web应用
+    5.  从类路径下找META-INF /spring.factories 配置的所有ApplicationContextInitalizer然后保存
+    6.  从类路径下找META-INF /spring.factories 配置的所有ApplicationContextListener然后保存
+    7.  多个配置类中找main方法所在的配置类
+2.  执行run方法
+    1.  创建StopWatch（开始、停止的监听）
+    2.  声明ioc容器（ConfigurableApplicationContext）
+    3.  ConfigureHeadlessProperty()跟awt相关操作
+    4.  **获取SpringApplicationRunListener**
+    5.  回调所有的获取的SpringApplicationRunListener的starting方法
+    6.  封装命令行参数
+    7.  准备环境
+    8.  配置环境
+    9.  回调所有的listener的prepare environment方法
+    10.  Banner 打印Banner
+    11.  创建ioc容器
+    12.  准备上下文，回调之前准备的ApplicationContextInitalizer的initalizer方法
+    13.  回调listener的contextPrepare方法，等所有的Listener都准备好了以后回调ContextLoaded
+    14.  刷新容器，web版加入tomcat容器；spring注解版（会扫描到配置注解）
+    15.  从ioc容器中获取所有的ApplicationRunner回调然后CommandLineRunner进行回调
+    16.  所有的SpringApplicationRunListener回调finish方法
+    17.  整个应用启动完成后返回ioc容器
+
+![image-20200206224252251](E:\notes\SpringBoot\image-20200206224252251.png)
+
+# 八、缓存
+
+1.  系统中高频使用的数据，存储在动态缓存区中，不需要打开数据库进行操作，缓存中没有的打开数据库，可以再保存在缓存中。
+2.  临时信息如验证码等等
+
+## 一、统一的缓存开发规范：J2EE——JSR107
+
+Java Cache定义了五个接口
+
+1.  **CachingProvider**  定义了创建、配置、获取、管理和控制多个**CacheManager**。一个应用可以在运行期访问多个CachingProvider
+2.  **CacheManage** 定义了创建、配置、获取、管理和控制多个唯一命名的**Cache**,Cache存在于CacheManager上下文。一个CacheManager仅被一个CacheProvider拥有
+3.  **Cache** 一个类似Map的数据结构并临时存储以Key为索引的值，一个Cache仅被一个CacheManager拥有
+4.  **Entry** 一个存储在Cache中的key-value对
+5.  **Expiry** 一个条目的有效期，可以通过**ExpiryPolicy**设置。
+
+![image-20200208105552675](E:\notes\SpringBoot\image-20200208105552675.png)
+
+## 二、配置
+
+使用JSR107需要导入依赖
+
+````xml
+<dependency>
+	<groupId>javax.cache</groupId>
+	<artifactId>cache-api</artifactId>
+</dependency>
+````
+
+
+
+
+
+# 八、Docker
+
+## 基础
+
+![image-20200119215731491](E:\notes\SpringBoot\image-20200119215731491.png)
+
+![image-20200119215804037](E:\notes\SpringBoot\image-20200119215804037.png)
+
+使用Docker的步骤
+
+1.  安装Docker
+2.  去Docker仓库中找到软件对应的镜像
+3.  使用Docker运行这个镜像，这个镜像就会产生一个Docker容器
+4.  对容器的启动停止就是对软件的启动停止
+
+## 安装Docker
+
+步骤：
+
+1.  检查内核版本，3.10及以上
+    1.  uname -r
+2.  安装docker
+    1.  yum install docker
 
