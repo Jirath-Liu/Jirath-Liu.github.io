@@ -2605,6 +2605,20 @@ mybatis:
     map-underscore-to-camel-case: true
 ````
 
+### 注解模式进行开发
+
+在接口方法上增加注解
+
+````java
+@Select("SELECT * FROM test")
+
+@Update("UPDATE test SET test1=#{data}")
+
+@Delete("DELETE FROM test WHERE id=#{id}")
+
+@Insert("INSERT INTO test(...) values(...)")
+````
+
 
 
 # 七、创建SpringBootApplication
@@ -2647,7 +2661,7 @@ mybatis:
 1.  系统中高频使用的数据，存储在动态缓存区中，不需要打开数据库进行操作，缓存中没有的打开数据库，可以再保存在缓存中。
 2.  临时信息如验证码等等
 
-## 一、统一的缓存开发规范：J2EE——JSR107
+## 1、统一的缓存开发规范：J2EE——JSR107
 
 Java Cache定义了五个接口
 
@@ -2659,7 +2673,7 @@ Java Cache定义了五个接口
 
 ![image-20200208105552675](E:\notes\SpringBoot\image-20200208105552675.png)
 
-## 二、配置
+### 2、配置
 
 使用JSR107需要导入依赖
 
@@ -2670,9 +2684,33 @@ Java Cache定义了五个接口
 </dependency>
 ````
 
+依赖就提供了注解与上面的接口，接口需要进行实现，**但是较为麻烦，Spring提供了自己的缓存抽象，定义了类似的注解与概念**
 
 
 
+## 2、Spring缓存抽象
+
+Spring从3.1开始**定义了org.springframework.cache.Cache和org.springframework.cache.CacheManager接口来统一不同的缓存技术，并支持JCache(JSR-107)注解简化开发**
+
+![image-20200214110441316](E:\notes\SpringBoot\image-20200214110441316.png)
+
+### 重要概念&缓存注解
+
+| Cache          | 缓存接口、定义缓存操作、实现有：RedisCache、EhCacheCahe、ConcurrentMapCache等 |
+| -------------- | ------------------------------------------------------------ |
+| CacheManager   | 缓存管理器，管理各种缓存（Cache）组件                        |
+| @Cacheable     | 主要针对方法配置、能根据方法的请求参数对其结果进行缓存       |
+| @CacheEvict    | 清空缓存                                                     |
+| @CachePut      | 保证方法被调用、又希望结果被缓存（缓存更新）                 |
+| @EnableCaching | 开启基于注解的缓存                                           |
+| keyGenerator   | 缓存数据时key生成策略                                        |
+| serialize      | 缓存数据时value序列化策略                                    |
+
+### 配置环境
+
+1.  引入Cache模块
+2.  配置基础的持久层
+3.  
 
 # 八、Docker
 
